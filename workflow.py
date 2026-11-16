@@ -11,7 +11,7 @@ from mcp.client.stdio import stdio_client
 
 ROOT = Path(__file__).parent
 ROUTES = {"policy": ("search_policy", "query"), "order": ("lookup_order", "order_id"),
-          "status": ("service_status", "service")}
+          "status": ("service_status", "service"), "semantic": ("search_semantic", "query")}
 QUERIES = [
     ("refund submitted after purchase", "billing-refund"),
     ("who approves refund exceptions", "billing-refund"),
@@ -29,7 +29,8 @@ QUERIES = [
 
 
 async def run(route, value):
-    env = {key: os.environ[key] for key in ("DATABASE_URL", "STATUS_API") if key in os.environ}
+    env = {key: os.environ[key] for key in (
+        "DATABASE_URL", "STATUS_API", "EMBEDDING_MODEL", "HF_HOME", "HF_HUB_OFFLINE") if key in os.environ}
     params = StdioServerParameters(command=sys.executable, args=[str(ROOT / "bridge.py")], env=env)
     async with stdio_client(params) as (read, write), ClientSession(read, write) as session:
         await session.initialize()
@@ -68,4 +69,10 @@ if __name__ == "__main__":
     parser.add_argument("route", choices=[*ROUTES, "benchmark"])
     parser.add_argument("value", nargs="?", default="")
     args = parser.parse_args()
-    print(json.dumps(asyncio.run(run(args.route, args.value)), indent=2))
+    report = asyncio.run(run(args.route, args.value))
+    print(json.dumps(report, indent=2))
+    if args.route == "benchmark" and (report["top1"] != len(QUERIES) or not all(
+        report[key] for key in ("order_lookup_ok", "invalid_rejected", "rest_lookup_ok",
+                                "unlisted_service_rejected", "unsupported_query_empty")
+    )):
+        sys.exit(1)

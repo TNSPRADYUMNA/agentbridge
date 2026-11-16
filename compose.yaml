@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: agentbridge
+      POSTGRES_USER: agentbridge
+      POSTGRES_PASSWORD: local_agentbridge
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agentbridge"]
+      interval: 3s
+      timeout: 2s
+      retries: 15
+  status:
+    build: .
+    command: ["python", "-m", "uvicorn", "fixture:app", "--host", "0.0.0.0"]
+  bridge:
+    build: .
+    environment:
+      STATUS_API: http://status:8000
+      DATABASE_URL: postgresql+psycopg://agentbridge:local_agentbridge@db:5432/agentbridge
+      HF_HOME: /models
+    volumes:
+      - embeddings:/models
+    depends_on:
+      db:
+        condition: service_healthy
+      status:
+        condition: service_started
+volumes:
+  embeddings:

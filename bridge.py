@@ -50,6 +50,15 @@ class Order(BaseModel):
 
 
 @mcp.tool()
+def search_semantic(query: str = Field(min_length=2, max_length=300)) -> list[PolicyHit]:
+    """Retrieve policy passages using dense similarity."""
+    from semantic import MODEL, retrieve
+
+    return [PolicyHit.model_validate(hit) for hit in retrieve(
+        query, POLICIES, model_name=os.getenv("EMBEDDING_MODEL", MODEL))]
+
+
+@mcp.tool()
 def lookup_order(order_id: str = Field(pattern=r"^ORD-[0-9]{4}$")) -> Order | None:
     """Fetch a single order status using a parameterized database query."""
     engine = create_engine(os.getenv("DATABASE_URL", f"sqlite:///{(ROOT / 'orders.db').as_posix()}"))

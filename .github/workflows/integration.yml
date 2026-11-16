@@ -1,0 +1,21 @@
+name: Integration
+on: [push, pull_request]
+jobs:
+  compose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose build
+      - run: docker compose up -d --wait db status
+      - name: Run PostgreSQL and REST tool checks over MCP
+        run: |
+          docker compose run --rm -T bridge sh -c 'python fixture.py && python workflow.py benchmark'
+      - name: Run the graph and dense retriever
+        run: |
+          docker compose run --rm -T bridge python graph.py semantic "Where can I download my account information?" | tee graph.json
+          python -c 'import json; assert json.load(open("graph.json"))["status"] == "grounded"'
+      - name: Benchmark semantic retrieval
+        run: docker compose run --rm -T bridge python semantic_benchmark.py
+      - if: always()
+        run: docker compose down -v
