@@ -1,0 +1,75 @@
+{
+  "tools_discovered": [
+    "lookup_order",
+    "search_policy",
+    "service_status"
+  ],
+  "top1": 12,
+  "queries": [
+    {
+      "query": "refund submitted after purchase",
+      "expected": "billing-refund",
+      "found": "billing-refund"
+    },
+    {
+      "query": "who approves refund exceptions",
+      "expected": "billing-refund",
+      "found": "billing-refund"
+    },
+    {
+      "query": "where can account owners export records",
+      "expected": "data-export",
+      "found": "data-export"
+    },
+    {
+      "query": "how long until export files expire",
+      "expected": "data-export",
+      "found": "data-export"
+    },
+    {
+      "query": "page on-call for critical outage",
+      "expected": "incident-escalation",
+      "found": "incident-escalation"
+    },
+    {
+      "query": "notify incident command",
+      "expected": "incident-escalation",
+      "found": "incident-escalation"
+    },
+    {
+      "query": "quarterly privileged access review",
+      "expected": "access-review",
+      "found": "access-review"
+    },
+    {
+      "query": "revoke access when employee leaves",
+      "expected": "access-review",
+      "found": "access-review"
+    },
+    {
+      "query": "recovery ticket for restoration",
+      "expected": "backup-restore",
+      "found": "backup-restore"
+    },
+    {
+      "query": "test backup restores monthly",
+      "expected": "backup-restore",
+      "found": "backup-restore"
+    },
+    {
+      "query": "purchases above 5000",
+      "expected": "purchase-approval",
+      "found": "purchase-approval"
+    },
+    {
+      "query": "procurement manager approval",
+      "expected": "purchase-approval",
+      "found": "purchase-approval"
+    }
+  ],
+  "order_lookup_ok": true,
+  "invalid_rejected": true,
+  "rest_lookup_ok": true,
+  "unlisted_service_rejected": true,
+  "unsupported_query_empty": true
+}
