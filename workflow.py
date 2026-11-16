@@ -30,7 +30,7 @@ QUERIES = [
 
 async def run(route, value):
     env = {key: os.environ[key] for key in (
-        "DATABASE_URL", "STATUS_API", "EMBEDDING_MODEL", "HF_HOME", "HF_HUB_OFFLINE") if key in os.environ}
+        "DATABASE_URL", "STATUS_API", "POLICY_FILE", "EMBEDDING_MODEL", "HF_HOME", "HF_HUB_OFFLINE") if key in os.environ}
     params = StdioServerParameters(command=sys.executable, args=[str(ROOT / "bridge.py")], env=env)
     async with stdio_client(params) as (read, write), ClientSession(read, write) as session:
         await session.initialize()

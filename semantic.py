@@ -1,5 +1,6 @@
 """Dense retrieval over the policy corpus using local embeddings and Chroma."""
 from functools import lru_cache
+from hashlib import sha256
 
 import chromadb
 from sentence_transformers import SentenceTransformer
@@ -12,7 +13,8 @@ REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
 def index(policies, model_name):
     encoder = SentenceTransformer(model_name, device="cpu", revision=REVISION if model_name == MODEL else None)
     client = chromadb.EphemeralClient(chromadb.config.Settings(anonymized_telemetry=False))
-    collection = client.get_or_create_collection("policies", metadata={"hnsw:space": "cosine"})
+    name = "policies-" + sha256(repr((policies, model_name)).encode()).hexdigest()[:24]
+    collection = client.get_or_create_collection(name, metadata={"hnsw:space": "cosine"})
     ids, texts = zip(*policies)
     vectors = encoder.encode(list(texts), normalize_embeddings=True).tolist()
     collection.upsert(ids=list(ids), documents=list(texts), embeddings=vectors)

@@ -1,0 +1,106 @@
+{
+  "policy": {
+    "top1": 1,
+    "top3": 3,
+    "cases": [
+      {
+        "query": "Can I get my money back four weeks later?",
+        "expected": "billing-refund",
+        "retrieved": [
+          "data-export"
+        ]
+      },
+      {
+        "query": "How can I download a copy of my information?",
+        "expected": "data-export",
+        "retrieved": [
+          "data-export"
+        ]
+      },
+      {
+        "query": "Who should I contact if the whole site goes down?",
+        "expected": "incident-escalation",
+        "retrieved": [
+          "access-review",
+          "incident-escalation",
+          "purchase-approval"
+        ]
+      },
+      {
+        "query": "Remove permissions after staff departure",
+        "expected": "access-review",
+        "retrieved": [
+          "data-export"
+        ]
+      },
+      {
+        "query": "What authorization is needed to recover from a saved copy?",
+        "expected": "backup-restore",
+        "retrieved": [
+          "purchase-approval"
+        ]
+      },
+      {
+        "query": "Who signs off on a large company purchase?",
+        "expected": "purchase-approval",
+        "retrieved": [
+          "billing-refund",
+          "purchase-approval"
+        ]
+      }
+    ]
+  },
+  "semantic": {
+    "top1": 5,
+    "top3": 6,
+    "cases": [
+      {
+        "query": "Can I get my money back four weeks later?",
+        "expected": "billing-refund",
+        "retrieved": [
+          "billing-refund",
+          "backup-restore"
+        ]
+      },
+      {
+        "query": "How can I download a copy of my information?",
+        "expected": "data-export",
+        "retrieved": [
+          "data-export"
+        ]
+      },
+      {
+        "query": "Who should I contact if the whole site goes down?",
+        "expected": "incident-escalation",
+        "retrieved": [
+          "incident-escalation"
+        ]
+      },
+      {
+        "query": "Remove permissions after staff departure",
+        "expected": "access-review",
+        "retrieved": [
+          "access-review"
+        ]
+      },
+      {
+        "query": "What authorization is needed to recover from a saved copy?",
+        "expected": "backup-restore",
+        "retrieved": [
+          "access-review",
+          "backup-restore",
+          "data-export"
+        ]
+      },
+      {
+        "query": "Who signs off on a large company purchase?",
+        "expected": "purchase-approval",
+        "retrieved": [
+          "purchase-approval",
+          "access-review",
+          "billing-refund"
+        ]
+      }
+    ]
+  }
+}

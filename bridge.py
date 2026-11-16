@@ -1,7 +1,9 @@
 """Read-only MCP tools for a controlled enterprise workflow."""
+import json
 import os
 import re
 from collections import Counter
+from functools import lru_cache
 from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
@@ -20,6 +22,24 @@ POLICIES = {
 }
 
 
+@lru_cache(maxsize=1)
+def policy_source():
+    path = os.getenv("POLICY_FILE")
+    if not path:
+        return POLICIES
+    corpus = Path(path)
+    if corpus.stat().st_size > 1_000_000:
+        raise ValueError("Policy corpus exceeds 1 MB.")
+    documents = json.loads(corpus.read_text(encoding="utf-8-sig"))
+    if not isinstance(documents, dict) or not 1 <= len(documents) <= 250 or any(
+        not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,99}", key)
+        or not isinstance(value, str) or not 1 <= len(value.strip()) <= 4000
+        for key, value in documents.items()
+    ):
+        raise ValueError("Policy corpus must map 1–250 source IDs to nonempty passages.")
+    return documents
+
+
 class PolicyHit(BaseModel):
     source: str
     text: str
@@ -36,7 +56,7 @@ def search_policy(query: str = Field(min_length=2, max_length=300),
     """Retrieve enterprise policy passages with source IDs."""
     q = Counter(tokens(query))
     hits = []
-    for key, passage in POLICIES.items():
+    for key, passage in policy_source().items():
         words = set(tokens(key + " " + passage))
         score = sum(count for term, count in q.items() if term in words and len(term) > 2)
         if score:
@@ -55,7 +75,7 @@ def search_semantic(query: str = Field(min_length=2, max_length=300)) -> list[Po
     from semantic import MODEL, retrieve
 
     return [PolicyHit.model_validate(hit) for hit in retrieve(
-        query, POLICIES, model_name=os.getenv("EMBEDDING_MODEL", MODEL))]
+        query, policy_source(), model_name=os.getenv("EMBEDDING_MODEL", MODEL))]
 
 
 @mcp.tool()
